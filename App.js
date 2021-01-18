@@ -2,7 +2,15 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import asyncStorage from "@react-native-community/async-storage";
-import { StyleSheet, Text, View, LogBox, TextInput } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  LogBox,
+  TextInput,
+  Button,
+  TouchableOpacity,
+} from "react-native";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import AsyncStorage from "@react-native-community/async-storage";
@@ -22,6 +30,7 @@ LogBox.ignoreAllLogs(["Setting a timer for a long period of time"]);
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [name, setName] = useState("");
   useEffect(() => {
     readUser();
   }, []);
@@ -35,7 +44,15 @@ export default function App() {
   if (!user) {
     return (
       <View style={styles.container}>
-        <TextInput style={styles.input} placeholder="First Name:" />
+        <TextInput
+          style={styles.input}
+          placeholder="First Name:"
+          value={name}
+          onTextInput={setName}
+        />
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.button}>Enter Chatroom</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -63,5 +80,15 @@ const styles = StyleSheet.create({
     padding: 15,
     borderColor: "#0575E6",
     borderRadius: 25,
+  },
+  button: {
+    backgroundColor: "#ff4750",
+    borderRadius: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 15,
+    height: "7%",
+    width: "40%",
+    marginVertical: 5,
   },
 });
