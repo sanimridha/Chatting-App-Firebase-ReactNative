@@ -1,5 +1,4 @@
 // @refresh reset
-import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import asyncStorage from "@react-native-community/async-storage";
 import {
@@ -8,8 +7,9 @@ import {
   View,
   LogBox,
   TextInput,
-  Button,
   TouchableOpacity,
+  ImageBackground,
+  StatusBar,
 } from "react-native";
 import * as firebase from "firebase";
 import "firebase/firestore";
@@ -41,19 +41,30 @@ export default function App() {
       JSON.parse(user);
     }
   };
+  async function handlePress() {
+    const _id = Math.random.toString(36).substring(7);
+    const user = { _id, name };
+    await AsyncStorage.setItem("user", JSON.stringify(user));
+    setUser(user);
+  }
   if (!user) {
     return (
-      <View style={styles.container}>
-        <TextInput
-          style={styles.input}
-          placeholder="First Name:"
-          value={name}
-          onTextInput={setName}
-        />
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.button}>Enter Chatroom</Text>
-        </TouchableOpacity>
-      </View>
+      <ImageBackground
+        style={styles.background}
+        source={require("./assets/background.jpg")}
+      >
+        <View style={styles.container}>
+          <TextInput
+            style={styles.input}
+            placeholder="First Name:"
+            value={name}
+            onChangeText={setName}
+          />
+          <TouchableOpacity style={styles.button} onPress={handlePress}>
+            <Text style={styles.text}>Enter Chatroom</Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
     );
   }
 
@@ -68,27 +79,45 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-end",
     padding: 30,
+    paddingBottom: 300,
   },
   input: {
     height: 50,
     width: "100%",
     borderWidth: 2.5,
     padding: 15,
-    borderColor: "#0575E6",
-    borderRadius: 25,
+    borderColor: "#ad0000",
+    borderRadius: 20,
+    borderBottomRightRadius: 1,
+    borderTopLeftRadius: 1,
+    backgroundColor: "#ffffe3",
   },
   button: {
-    backgroundColor: "#ff4750",
-    borderRadius: 1,
+    backgroundColor: "#ad0000",
+    // borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
     padding: 15,
-    height: "7%",
-    width: "40%",
-    marginVertical: 5,
+    height: "8%",
+    width: "42%",
+    marginVertical: 6,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  text: {
+    color: "#ffffe3",
+    fontSize: 15,
+    textTransform: "capitalize",
+    fontWeight: "bold",
+  },
+  background: {
+    flex: 1,
+    // justifyContent: "flex-end",
+    // alignItems: "center",
+    position: "relative",
   },
 });
