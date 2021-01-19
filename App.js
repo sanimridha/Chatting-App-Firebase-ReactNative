@@ -1,5 +1,5 @@
 // @refresh reset
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,10 +13,11 @@ import {
 import * as firebase from "firebase";
 import "firebase/firestore";
 import AsyncStorage from "@react-native-community/async-storage";
-
+import { GiftedChat } from "react-native-gifted-chat";
 const firebaseConfig = {
   apiKey: "AIzaSyAz8UmSjeW_bU94TnjAhQT9vntw7JhVg20",
   authDomain: "chatting-app-f2c95.firebaseapp.com",
+  databaseURL: "https://chatting-app-f2c95-default-rtdb.firebaseio.com",
   projectId: "chatting-app-f2c95",
   storageBucket: "chatting-app-f2c95.appspot.com",
   messagingSenderId: "1030070017535",
@@ -33,6 +34,7 @@ const chatRef = db.collection("chats");
 export default function App() {
   const [user, setUser] = useState(null);
   const [name, setName] = useState("");
+  const [messages, setMessages] = useState([]);
   useEffect(() => {
     readUser();
     const unsubscribe = chatsRef.onSnapshot(querySnapshot => {
@@ -44,13 +46,22 @@ export default function App() {
           return { ...message, createdAt: message.createdAt.toDate() };
         })
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getItem());
+      appendMessages(messagesFirestore);
     });
+    return () => unsubscribe();
   }, []);
+  const appendMessages = useCallback(
+    messages => {
+      setMessages(previousMessages =>
+        GiftedChat.append(previousMessages, messages)
+      );
+    },
+    [messages]
+  );
   const readUser = async () => {
     const user = await AsyncStorage.getItem("user");
     if (user) {
-      setUser;
-      JSON.parse(user);
+      setUser(JSON.parse(user));
     }
   };
   async function handlePress() {
@@ -58,6 +69,10 @@ export default function App() {
     const user = { _id, name };
     await AsyncStorage.setItem("user", JSON.stringify(user));
     setUser(user);
+  }
+  async function handleSend(message) {
+    const writes = messages.map(m => chatRef.add(m));
+    await Promise.all(writes);
   }
   if (!user) {
     return (
@@ -80,12 +95,7 @@ export default function App() {
     );
   }
 
-  return (
-    <View style={styles.container}>
-      <Text>We Have Active User To Talk</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+  return <GiftedChat messages={messages} user={user} onSend={handleSend} />;
 }
 
 const styles = StyleSheet.create({
