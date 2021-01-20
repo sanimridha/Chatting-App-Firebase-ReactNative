@@ -8,12 +8,15 @@ import {
   TextInput,
   TouchableOpacity,
   ImageBackground,
-  StatusBar,
+  Platform,
 } from "react-native";
 import * as firebase from "firebase";
+
+// import { firebase } from "./node_modules/firebase/firebase";
 import "firebase/firestore";
 import AsyncStorage from "@react-native-community/async-storage";
 import { GiftedChat } from "react-native-gifted-chat";
+// import fb from "firebase/app";
 const firebaseConfig = {
   apiKey: "AIzaSyAz8UmSjeW_bU94TnjAhQT9vntw7JhVg20",
   authDomain: "chatting-app-f2c95.firebaseapp.com",
@@ -23,10 +26,29 @@ const firebaseConfig = {
   messagingSenderId: "1030070017535",
   appId: "1:1030070017535:web:d0bad52c7212aa6932dbca",
 };
-if (firebase.app.length === 0) {
+
+if (Platform.OS === "android" || Platform.OS === "ios") {
+  if (firebase.app.length === 0) {
+    firebase.initializeApp(firebaseConfig);
+  }
+} else {
   firebase.initializeApp(firebaseConfig);
 }
-LogBox.ignoreAllLogs(["Setting a timer for a long period of time"]);
+if (Platform.OS === "android" || Platform.OS === "ios") {
+  LogBox.ignoreLogs(["Setting a timer for a long period of time"]);
+}
+// Initialize Firebase
+// fb.initializeApp(firebaseConfig);
+
+// if (fb.app.length === 0) {
+//   fb.initializeApp(firebaseConfig);
+// }
+
+// LogBox.ignoreAllLogs(["Setting a timer for a long period of time"]);
+
+// export const firebase = !fb.app.length
+//   ? fb.initializeApp(firebaseConfig)
+//   : fb.app();
 
 const db = firebase.firestore();
 const chatRef = db.collection("chats");
@@ -37,15 +59,17 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     readUser();
-    const unsubscribe = chatsRef.onSnapshot(querySnapshot => {
+    const unsubscribe = chatRef.onSnapshot(querySnapshot => {
       const messagesFirestore = querySnapshot
         .docChanges()
         .filter(({ type }) => type === "added")
         .map(({ doc }) => {
           const message = doc.data();
+          //createdAt is firebase.firestore.Timestamp instance
+          //https://firebase.google.com/docs/reference/js/firebase.firestore.Timestamp
           return { ...message, createdAt: message.createdAt.toDate() };
         })
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getItem());
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
       appendMessages(messagesFirestore);
     });
     return () => unsubscribe();
@@ -70,7 +94,7 @@ export default function App() {
     await AsyncStorage.setItem("user", JSON.stringify(user));
     setUser(user);
   }
-  async function handleSend(message) {
+  async function handleSend(messages) {
     const writes = messages.map(m => chatRef.add(m));
     await Promise.all(writes);
   }
@@ -143,3 +167,5 @@ const styles = StyleSheet.create({
     position: "relative",
   },
 });
+
+///https://github.com/vercel/next.js/discussions/11351
