@@ -18,13 +18,7 @@ import AsyncStorage from "@react-native-community/async-storage";
 import { GiftedChat } from "react-native-gifted-chat";
 // import fb from "firebase/app";
 const firebaseConfig = {
-  apiKey: "AIzaSyAz8UmSjeW_bU94TnjAhQT9vntw7JhVg20",
-  authDomain: "chatting-app-f2c95.firebaseapp.com",
-  databaseURL: "https://chatting-app-f2c95-default-rtdb.firebaseio.com",
-  projectId: "chatting-app-f2c95",
-  storageBucket: "chatting-app-f2c95.appspot.com",
-  messagingSenderId: "1030070017535",
-  appId: "1:1030070017535:web:d0bad52c7212aa6932dbca",
+  //your Firebase Config
 };
 
 if (Platform.OS === "android" || Platform.OS === "ios") {
